@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import Profile_Serializers
+from .serializers import Profile_Serializers, LoginSerializer
 from .models import Profile
+from django.contrib.auth import authenticate
 
 # Create your views here.
 
@@ -74,5 +75,34 @@ class List_Profiles(APIView):
         # data = data.request
         user = Profile.objects.all()
         serializer = Profile_Serializers(user, many=True)
-
         return Response(serializer.data)
+    
+class Login_View(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        print(username, password)
+
+        if not username or not password:
+            data = {
+                "error" : True,
+                "msg" : "Username yoki Password to'liq kiritilmagan"
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = authenticate(username=username, password=password)
+        if user:
+            serializer = Profile_Serializers(user)
+            data = {
+                "error" : False,
+                "msg" : "Tizimga successfully kirildi",
+                "user" : serializer.data
+            }
+            return Response(data=data, status=status.HTTP_200_OK)
+        else:
+            data = {
+                "error" : True,
+                "msg" : "Username yoki password xato",
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+

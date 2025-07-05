@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import User, AbstractUser, UserManager
 from base.models import Base_Model
 
 # Create your models here.
@@ -10,6 +10,8 @@ class Profile(Base_Model, AbstractUser):
     phone_number = models.CharField()
     birth = models.DateField(null=True, blank=True)
 
+    objects = UserManager()
+    
     def __str__(self):
         return self.username
 
